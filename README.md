@@ -22,6 +22,23 @@ A secure, event-driven notification system that bridges AWS S3 and Slack. It ins
 
 ---
 
+### 2. The Cost Sentinel (EBS Snapshot Manager)
+**Location:** [`The-Cost-Sentinel/lambda_function.py`](./The-Cost-Sentinel/lambda_function.py)
+
+A scheduled automation tool designed to optimize cloud storage costs and ensure disaster recovery compliance. It automatically creates daily backups of critical EC2 volumes and prunes old snapshots to prevent billing spikes.
+
+**Key Features:**
+* **Smart Scheduling:** Triggered daily via Amazon EventBridge (Cron).
+* **Cost Optimization:** Enforces a 7-day retention policy, automatically deleting old snapshots to save storage costs.
+* **Intelligent Tagging:** Distinguishes between "Initial" (first-time) and "Incremental" backups in logs and tags.
+* **Tag-Driven Scope:** Only targets volumes explicitly tagged `Backup: true`, ignoring temporary or non-critical storage.
+* **Safety First:** Filters strictly by `CreatedBy: CostSentinel` tags to ensure it never deletes manual snapshots created by humans.
+
+**Architecture:**
+> EventBridge (Schedule) -> Lambda -> EC2 API (Create/Delete Snapshot) -> Slack Notification
+
+---
+
 ## How to Use
 
 1.  **Clone the repo:**
@@ -30,11 +47,13 @@ A secure, event-driven notification system that bridges AWS S3 and Slack. It ins
     ```
 2.  **Select a function:** Navigate to the specific folder.
 3.  **Deploy:** Copy the code into the AWS Lambda Console (Python 3.x runtime).
-4.  **Configure:** Set the required Environment Variables (documented in the code comments).
+4.  **Configure:** * Set the required Environment Variables (e.g., `SLACK_WEBHOOK_URL`).
+    * Attach the necessary IAM Permissions (e.g., `ec2:CreateSnapshot`, `s3:GetObject`).
 
 ## Tech Stack
 * **Runtime:** Python 3.9+
 * **AWS SDK:** Boto3 (Core integration)
+* **Services:** AWS Lambda, Amazon EventBridge, S3, EC2
 * **Libraries:** `urllib` (Standard library for lightweight HTTP requests)
 
 ## Contributing
