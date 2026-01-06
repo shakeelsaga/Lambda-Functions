@@ -6,7 +6,7 @@ Each folder in this repository contains a self-contained function with its own l
 
 ## Function Library
 
-### 1. S3 to Slack Notifier (The "Serverless Drop-Box")
+### 1. S3 to Slack Notifier
 **Type:** Observability & Notification
 **Location:** [`S3-Slack-Notifier/lambda_function.py`](./S3-Slack-Notifier/lambda_function.py)
 
@@ -23,11 +23,11 @@ A secure, event-driven notification system that bridges AWS S3 and Slack. It ins
 
 ---
 
-### 2. The Cost Sentinel (EBS Snapshot Manager)
+### 2. EBS Lifecycle Manager
 **Type:** Cost Optimization & Disaster Recovery
-**Location:** [`The-Cost-Sentinel/lambda_function.py`](./The-Cost-Sentinel/lambda_function.py)
+**Location:** [`EBS-Lifecycle-Manager/lambda_function.py`](./EBS-Lifecycle-Manager/lambda_function.py)
 
-A scheduled automation tool designed to optimize cloud storage costs and ensure disaster recovery compliance. It automatically creates daily backups of critical EC2 volumes and prunes old snapshots to prevent billing spikes.
+A scheduled automation tool that manages the full lifecycle of EC2 backups. It ensures data durability while strictly controlling storage costs.
 
 **Key Features:**
 * **Smart Scheduling:** Triggered daily via Amazon EventBridge (Cron).
