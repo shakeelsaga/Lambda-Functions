@@ -93,13 +93,22 @@ def check_and_remediate_rules():
 
 
 def lambda_handler(event, context):
-    success, message = check_and_remediate_rules()
+    success, detail_message = check_and_remediate_rules()
+
+    # Determine status symbol
+    status_symbol = "✔" if success else "⚠"
+
+    # Construct the formatted message matching the EBS function style
+    final_message = (
+        f"{status_symbol} *Security Group Auditor Report*\n"
+        f"> {detail_message}"
+    )
 
     # Only notify if something changed or if the run failed
-    if not success or "Found 0" not in message:
-        send_slack_notification(message)
+    if not success or "Found 0" not in detail_message:
+        send_slack_notification(final_message)
 
     if success:
-        return {'statusCode': 200, 'body': message}
+        return {'statusCode': 200, 'body': final_message}
     else:
-        return {'statusCode': 500, 'body': message}
+        return {'statusCode': 500, 'body': final_message}

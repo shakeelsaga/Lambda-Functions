@@ -14,11 +14,11 @@ SLACK_URL = os.environ.get('SLACK_WEBHOOK_URL')
 
 def get_backup_type(vol_id):
     try:
-        # Checking if this volume already has CostSentinel-managed snapshots
+        # Checking if this volume already has manager-created snapshots
         response = ec2.describe_snapshots(
             Filters=[
                 {'Name': 'volume-id', 'Values': [vol_id]},
-                {'Name': 'tag:CreatedBy', 'Values': ['CostSentinel']}
+                {'Name': 'tag:CreatedBy', 'Values': ['EBSLifecycleManager']}
             ]
         )
         snapshots = response.get("Snapshots", [])
@@ -50,7 +50,7 @@ def backup_creation():
                     {
                         "ResourceType": "snapshot",
                         "Tags": [
-                            {"Key": "CreatedBy", "Value": "CostSentinel"},
+                            {"Key": "CreatedBy", "Value": "EBSLifecycleManager"},
                             {"Key": "BackupType", "Value": backup_type},
                             {"Key": "Name", "Value": f"Backup-{vol_name}-{vol_id}"}
                         ],
@@ -80,7 +80,7 @@ def backup_cleanup():
         response = ec2.describe_snapshots(
             OwnerIds=['self'],
             Filters=[
-                {'Name': 'tag:CreatedBy', 'Values': ['CostSentinel']}
+                {'Name': 'tag:CreatedBy', 'Values': ['EBSLifecycleManager']}
             ]
         )
 
@@ -109,8 +109,8 @@ def send_slack_notification(message):
     
     payload = {
         "text": message,
-        "username": "The Cost Sentinel",
-        "icon_emoji": ":shield:"
+        "username": "EBS Lifecycle Manager",
+        "icon_emoji": ":floppy_disk:"
     }
 
     try:
@@ -133,7 +133,7 @@ def lambda_handler(event, context):
     status_symbol = "✔" if (backup_success and cleanup_success) else "⚠"
     
     final_message = (
-        f"{status_symbol} *Cost Sentinel Report*\n"
+        f"{status_symbol} *EBS Lifecycle Report*\n"
         f"> Backup: {backup_msg}\n"
         f"> Cleanup: {cleanup_msg}"
     )
