@@ -1,8 +1,19 @@
 # Serverless Functions Collection
 
-A curated collection of Python-based AWS Lambda functions designed to solve real-world cloud automation and DevOps problems.
+A curated collection of Python-based AWS Lambda functions focused on practical cloud automation, cost control, and operational safety.
 
-Each folder in this repository contains a self-contained function with its own logic, intended to be deployed to the AWS Serverless environment.
+This repository emphasizes event-driven design, least-privilege IAM usage, and defensive automation patterns commonly used in real-world DevOps environments.
+
+## Engineering Focus
+
+This repository focuses on:
+
+- Designing small, single-responsibility Lambda functions  
+- Using event-driven and scheduled automations where appropriate  
+- Enforcing safety and cost controls through tagging and validation  
+- Treating cloud resources as disposable and automatable by default  
+
+Each function is intentionally scoped to solve one operational problem end-to-end.
 
 ## Function Library
 
@@ -27,14 +38,21 @@ A secure, event-driven notification system that bridges AWS S3 and Slack. It ins
 **Type:** Cost Optimization & Disaster Recovery
 **Location:** [`EBS-Lifecycle-Manager/lambda_function.py`](./EBS-Lifecycle-Manager/lambda_function.py)
 
-A scheduled automation tool that manages the full lifecycle of EC2 backups. It ensures data durability while strictly controlling storage costs.
+A scheduled automation function designed to manage EC2 snapshot lifecycles with a strong emphasis on cost control and safe deletion.
+
+This function reflects real-world backup automation patterns where retention policies, tagging discipline, and deletion safety are critical.
 
 **Key Features:**
 * **Smart Scheduling:** Triggered daily via Amazon EventBridge (Cron).
 * **Cost Optimization:** Enforces a 7-day retention policy, automatically deleting old snapshots to save storage costs.
 * **Intelligent Tagging:** Distinguishes between "Initial" (first-time) and "Incremental" backups in logs and tags.
 * **Tag-Driven Scope:** Only targets volumes explicitly tagged `Backup: true`, ignoring temporary or non-critical storage.
-* **Safety First:** Filters strictly by `CreatedBy: CostSentinel` tags to ensure it never deletes manual snapshots created by humans.
+* **Deletion Safety:** Operates only on snapshots it created itself, ensuring manual or externally-managed backups are never touched.
+
+**Design Notes:**
+- Uses tag-based scoping to strictly limit automation blast radius  
+- Treats snapshot deletion as a privileged, carefully constrained operation  
+- Separates scheduling (EventBridge) from execution (Lambda) for clarity  
 
 **Architecture:**
 > EventBridge (Schedule) -> Lambda -> EC2 API (Create/Delete Snapshot) -> Slack Notification
@@ -55,6 +73,17 @@ An auto-remediation function acting as a "Compliance Guardrail." It continuously
 
 **Architecture:**
 > EventBridge (Schedule) -> Lambda -> EC2 API (Describe/Revoke) -> Slack Notification
+
+---
+
+## Design Philosophy
+
+- Prefer multiple small Lambdas over monolithic automation  
+- Automate cost and security hygiene, not just provisioning  
+- Fail safely and log clearly when assumptions are violated  
+- Optimize for operational clarity over minimal code  
+
+These functions are designed to be readable, auditable, and easy to extend.
 
 ---
 
